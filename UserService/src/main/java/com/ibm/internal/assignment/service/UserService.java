@@ -9,6 +9,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.ibm.internal.assignment.entity.User;
 import com.ibm.internal.assignment.repository.UserRepository;
-import com.ibm.internal.assignment.service.exceptions.InvalidUserException;
+import com.ibm.internal.assignment.service.exceptions.Error;
 import com.ibm.internal.assignment.service.exceptions.UserNotFoundException;
 
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
@@ -30,7 +31,7 @@ import com.ibm.internal.assignment.service.exceptions.UserNotFoundException;
 public class UserService {
 
 	@Autowired
-	private UserServiceEntityManager entityManager; 	
+	private UserServiceEntityManager entityManager;
 
 	public static void main(String[] args) {
 		System.setProperty("spring.config.name", "userServiceClient");
@@ -40,23 +41,35 @@ public class UserService {
 	}
 
 	@RequestMapping(value = "/signup", consumes = "application/json", method = RequestMethod.POST)
-	@ResponseStatus(value = HttpStatus.CREATED)
-	public void createUser(@RequestBody User user, UriComponentsBuilder urib) {
+	public ResponseEntity<?> createUser(@RequestBody User user, UriComponentsBuilder urib) {
 		if (null == user)
-			throw new InvalidUserException();
+			return new ResponseEntity<Error>(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
+		if (null == entityManager.getByUsername(user.getUsername()))
+			return new ResponseEntity<Error>(new Error(2, "Duplicate  userr"), HttpStatus.FOUND);
 		User postSave = entityManager.save(user);
 		HttpHeaders httpHeaders = new HttpHeaders();
 		URI entityUri = urib.path(String.valueOf(postSave.getId())).build().toUri();
 		httpHeaders.setLocation(entityUri);
+		return new ResponseEntity<User>(postSave, httpHeaders, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/{id}", produces = "application/json", method = RequestMethod.GET)
-	@ResponseStatus(value = HttpStatus.OK)
-	public User getUser(@PathVariable Long id)  {
+	public ResponseEntity<?> getUser(@PathVariable Long id) {
 		User user = entityManager.findOne(id);
 		if (null == user)
-			throw new UserNotFoundException();
-		return user;
+			return new ResponseEntity<Error>(new Error(3, "user by {id}=" + id + " not found."), HttpStatus.NOT_FOUND);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
+
+	@RequestMapping(value = "/login", produces = "application/json", method = RequestMethod.GET)
+	public ResponseEntity<?> login(@PathVariable String username, @PathVariable String password) {
+		User user = entityManager.getByUsernameAndPassword(username, password);
+		if (null == user)
+			return new ResponseEntity<Error>(new Error(3, "user with supplied credentials not found."),
+					HttpStatus.NOT_FOUND);
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("sessionID", String.valueOf(Math.random()));
+		return new ResponseEntity<User>(user, headers, HttpStatus.OK);
 	}
 
 }

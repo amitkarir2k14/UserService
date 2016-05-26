@@ -6,6 +6,6 @@ import com.ibm.internal.assignment.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long>{
 	User getByUsername(String username);
-	
+	User getByUsernameAndPassword(String username, String password);
 }
 

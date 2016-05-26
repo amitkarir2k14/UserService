@@ -11,12 +11,20 @@ public class UserServiceEntityManager {
 
 	@Autowired
 	private UserRepository userRepository;
-	
-	public User save(User user){
+
+	public User save(User user) {
 		return userRepository.save(user);
 	}
 
 	public User findOne(Long id) {
 		return userRepository.findOne(id);
+	}
+
+	public User getByUsername(String username) {
+		return userRepository.getByUsername(username);
+	}
+
+	public User getByUsernameAndPassword(String username, String password) {
+		return userRepository.getByUsernameAndPassword(username, password);
 	}
 }
