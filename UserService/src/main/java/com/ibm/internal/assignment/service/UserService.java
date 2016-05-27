@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.ComponentScan.Filter;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,8 +30,7 @@ import com.ibm.internal.assignment.service.helper.UserServiceHelper;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
-@ComponentScan(basePackages = { "com.ibm.internal.assignment" }, excludeFilters = {
-		@Filter(type = FilterType.ANNOTATION, value = EnableEurekaServer.class) })
+@ComponentScan(basePackages = { "com.ibm.internal.assignment" })
 @EnableEurekaClient
 @RestController
 @RequestMapping("/user")
