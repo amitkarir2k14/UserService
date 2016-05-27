@@ -15,8 +15,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="ID")
-	@NotNull
-	private long id;
+	private Long id;
 	
 	@Column(name="firstname")
 	@NotNull
@@ -32,12 +31,28 @@ public class User {
 	
 	@Column(name = "uname")
 	@NotNull
-	private String username;
+	private String uname;
 	
+	public String getUname() {
+		return uname;
+	}
+
+	public void setUname(String uname) {
+		this.uname = uname;
+	}
+
 	@Column(name = "pwd")
 	@NotNull
-	private String password;
+	private String pwd;
 	
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
+
 	@Column(name="portfolioid")
 	private String portfolioId;
 	
@@ -52,21 +67,6 @@ public class User {
 	private String type;
 
 	
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
 
 	public String getEmail() {
 		return email;
@@ -76,11 +76,11 @@ public class User {
 		this.email = email;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

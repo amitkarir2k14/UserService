@@ -32,7 +32,8 @@ public class UserServiceConfig {
 
 	private Properties additionalProperties() {
 		Properties properties = new Properties();
-		properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+//		properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+		properties.setProperty("show_sql","true");
 		return properties;
 	}
 
@@ -50,7 +51,7 @@ public class UserServiceConfig {
 		emfb.setDataSource(dataSource);
 		emfb.setJpaVendorAdapter(jpaVendorAdapter);
 		emfb.setPackagesToScan("com.ibm.internal.assignment.entity");
-		// emfb.setJpaProperties(additionalProperties());
+		 emfb.setJpaProperties(additionalProperties());
 		return emfb;
 	}
 

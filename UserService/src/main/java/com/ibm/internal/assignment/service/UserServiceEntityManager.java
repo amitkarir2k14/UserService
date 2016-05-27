@@ -21,10 +21,10 @@ public class UserServiceEntityManager {
 	}
 
 	public User getByUsername(String username) {
-		return userRepository.getByUsername(username);
+		return userRepository.findByUname(username);
 	}
 
 	public User getByUsernameAndPassword(String username, String password) {
-		return userRepository.getByUsernameAndPassword(username, password);
+		return userRepository.findByUnameAndPwd(username, password);
 	}
 }
