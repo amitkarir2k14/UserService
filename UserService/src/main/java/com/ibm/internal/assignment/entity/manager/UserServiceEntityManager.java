@@ -1,4 +1,4 @@
-package com.ibm.internal.assignment.service;
+package com.ibm.internal.assignment.entity.manager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

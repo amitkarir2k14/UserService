@@ -16,23 +16,20 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.internal.assignment.entity.User;
+import com.ibm.internal.assignment.entity.manager.UserServiceEntityManager;
 import com.ibm.internal.assignment.repository.UserRepository;
 import com.ibm.internal.assignment.service.exceptions.Error;
-import com.ibm.internal.assignment.service.exceptions.UserNotFoundException;
+import com.ibm.internal.assignment.service.helper.UserServiceHelper;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
@@ -47,6 +44,10 @@ public class UserService {
 	private UserServiceEntityManager entityManager;
 	@Autowired
 	ObjectMapper objectMapper;
+	@Autowired
+	UserServiceHelper<User> serviceHelper;
+	@Autowired
+	UserServiceHelper<Error> errorHelper;
 
 	public static void main(String[] args) {
 		System.setProperty("spring.config.name", "userServiceClient");
@@ -56,31 +57,30 @@ public class UserService {
 	}
 
 	@RequestMapping(value = "/signup", consumes = "application/json", method = RequestMethod.POST)
-	public ResponseEntity<?> createUser (@Valid @RequestBody User user, UriComponentsBuilder urib, Errors errors) {
+	public ResponseEntity<?> createUser(@Valid @RequestBody User user, UriComponentsBuilder urib) {
 		if (null == user)
-			return new ResponseEntity<Error>(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
+			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null != entityManager.getByUsername(user.getUname()))
-			return new ResponseEntity<Error>(new Error(2, "Duplicate  userr"), HttpStatus.FOUND);
+			return errorHelper.getResponseEntity(new Error(2, "Duplicate  userr"), HttpStatus.FOUND);
 		User postSave = entityManager.save(user);
 		HttpHeaders httpHeaders = new HttpHeaders();
 		URI entityUri = urib.path(String.valueOf(postSave.getId())).build().toUri();
 		httpHeaders.setLocation(entityUri);
-		return new ResponseEntity<User>(postSave, httpHeaders, HttpStatus.CREATED);
+		return serviceHelper.getResponseEntity(postSave, httpHeaders, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/update", consumes = "application/json", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateUser(User user, UriComponentsBuilder urib) {
+	public ResponseEntity<?> updateUser(@Valid @RequestBody User user, UriComponentsBuilder urib) {
 		if (null == user)
-			return new ResponseEntity<Error>(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
+			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == user.getId())
-			return new ResponseEntity<Error>(new Error(1, "Identity is required for update"), HttpStatus.BAD_REQUEST);
+			return errorHelper.getResponseEntity(new Error(1, "Identity is required for update"),
+					HttpStatus.BAD_REQUEST);
 		User dbUser = entityManager.findOne(user.getId());
 		if (null == dbUser)
-			return new ResponseEntity<Error>(new Error(3, "user to be updated not found."), HttpStatus.NOT_FOUND);
-
-		// User updatedUser =
-		// objectMapper.readerForUpdating(dbUser).readValue(request.getReader());
-		User postSave = entityManager.save(user);
+			return errorHelper.getResponseEntity(new Error(3, "user to be updated not found."), HttpStatus.NOT_FOUND);
+		serviceHelper.updateUserProps(dbUser, user);
+		User postSave = entityManager.save(dbUser);
 		HttpHeaders httpHeaders = new HttpHeaders();
 		URI entityUri = urib.path(String.valueOf(postSave.getId())).build().toUri();
 		httpHeaders.setLocation(entityUri);
