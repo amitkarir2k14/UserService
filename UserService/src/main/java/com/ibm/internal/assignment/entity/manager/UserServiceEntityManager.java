@@ -1,5 +1,7 @@
 package com.ibm.internal.assignment.entity.manager;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,11 @@ public class UserServiceEntityManager {
 
 	public User getByUsername(String username) {
 		return userRepository.findByUname(username);
+	}
+	
+
+	public List<User> getAllUsers() {
+		return userRepository.findAll();
 	}
 
 	public User getByUsernameAndPassword(String username, String password) {

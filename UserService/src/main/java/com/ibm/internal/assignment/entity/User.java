@@ -9,30 +9,60 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name="FINUSER", schema="AMIT")
+@Table(name = "FINUSER", schema = "AMIT")
 public class User {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "ID")
 	private Long id;
-	
-	@Column(name="firstname")
+
+	@Column(name = "firstname")
 	@NotNull
 	private String firstname;
-	
-	@Column(name="lastname")
+
+	@Column(name = "lastname")
 	@NotNull
 	private String lastname;
-	
+
 	@Column(name = "email")
 	@NotNull
 	private String email;
-	
+
 	@Column(name = "uname")
 	@NotNull
 	private String uname;
 	
+	public User(){}
+
+	public User(String firstname, String lastname, String email, String uname, String pwd, String portfolioId,
+			String address, String status, String type) {
+		super();
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+		this.uname = uname;
+		this.pwd = pwd;
+		this.portfolioId = portfolioId;
+		this.address = address;
+		this.status = status;
+		this.type = type;
+	}
+
+	public User(Long id, String firstname, String lastname, String email, String uname, String pwd, String portfolioId,
+			String address, String status, String type) {
+		this.id = id;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.email = email;
+		this.uname = uname;
+		this.pwd = pwd;
+		this.portfolioId = portfolioId;
+		this.address = address;
+		this.status = status;
+		this.type = type;
+	}
+
 	public String getUname() {
 		return uname;
 	}
@@ -44,7 +74,7 @@ public class User {
 	@Column(name = "pwd")
 	@NotNull
 	private String pwd;
-	
+
 	public String getPwd() {
 		return pwd;
 	}
@@ -53,25 +83,23 @@ public class User {
 		this.pwd = pwd;
 	}
 
-	@Column(name="portfolioid")
+	@Column(name = "portfolioid")
 	private String portfolioId;
-	
-	@Column(name="address")
+
+	@Column(name = "address")
 	@NotNull
 	private String address;
-	
-	@Column(name="status")
-	private String status;
-	
-	@Column(name="type")
-	private String type;
 
-	
+	@Column(name = "status")
+	private String status;
+
+	@Column(name = "type")
+	private String type;
 
 	public String getEmail() {
 		return email;
 	}
-	
+
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -131,5 +159,5 @@ public class User {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 }

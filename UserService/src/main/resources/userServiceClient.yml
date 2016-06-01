@@ -1,7 +1,7 @@
 # Spring properties
 spring:
   application:
-     name: FinUser-service
+     name: identity-service
 
 # Discovery Server Access
 eureka:

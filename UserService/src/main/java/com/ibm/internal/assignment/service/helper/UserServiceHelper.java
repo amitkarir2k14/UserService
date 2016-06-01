@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.ibm.internal.assignment.entity.User;
+import com.ibm.internal.assignment.entity.spec.UserSpec;
 
 @Component
 public class UserServiceHelper<T> {
@@ -18,13 +19,26 @@ public class UserServiceHelper<T> {
 		return new ResponseEntity<T>(t, status);
 	}
 	
-	public void updateUserProps(User dbUser, User reqUser) {
-		dbUser.setFirstname(reqUser.getFirstname());
-		dbUser.setLastname(reqUser.getLastname());
-		dbUser.setEmail(reqUser.getEmail());
-		dbUser.setAddress(reqUser.getAddress());
-		dbUser.setPwd(reqUser.getPwd());
-		dbUser.setStatus(reqUser.getStatus());
-		dbUser.setType(reqUser.getType());
+	public void updateUserProps(User user, UserSpec userSpec) {
+		if (userSpec.getId() != null)
+			user.setId(userSpec.getId());
+		if (userSpec.getAddress() != null)
+			user.setAddress(userSpec.getAddress());
+		if (userSpec.getEmailAddress() != null)
+			user.setEmail(userSpec.getAddress());
+		if (userSpec.getFinPortfolioId() != null)
+			user.setPortfolioId((userSpec.getFinPortfolioId()));
+		if (userSpec.getFname() != null)
+			user.setFirstname(userSpec.getFname());
+		if (userSpec.getLname() != null)
+			user.setLastname(userSpec.getLname());
+		if (userSpec.getPwd() != null)
+			user.setPwd(userSpec.getPwd());
+		if (userSpec.getStatus() != null)
+			user.setStatus(userSpec.getStatus());
+		if (userSpec.getType() != null)
+			user.setType(userSpec.getType());
+		if (userSpec.getUsername() != null)
+			user.setUname(userSpec.getUsername());
 	}
 }
