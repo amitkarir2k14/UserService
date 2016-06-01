@@ -68,8 +68,8 @@ public class UserService {
 		return serviceHelper.getResponseEntity(postSave, httpHeaders, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/user/update", consumes = "application/json", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateUser(@Valid @RequestBody UserSpec userSpec, UriComponentsBuilder urib) {
+	@RequestMapping(value = "/user", consumes = "application/json", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateUser(@RequestBody UserSpec userSpec, UriComponentsBuilder urib) {
 		if (null == userSpec)
 			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == userSpec.getId())
