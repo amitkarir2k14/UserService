@@ -31,7 +31,7 @@ import com.ibm.internal.assignment.service.helper.UserServiceHelper;
 @SpringBootApplication
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
 @ComponentScan(basePackages = { "com.ibm.internal.assignment" })
-@EnableEurekaClient
+//@EnableEurekaClient
 @RestController
 public class UserService {
 

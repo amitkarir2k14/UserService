@@ -89,24 +89,56 @@ public class UserServiceTest {
 
 	@Test
 	public void testUserLoggedIn() throws IOException, Exception {
-		MvcResult result = mockMvc.perform(post("/user/login").content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null))).contentType(contentType)).andReturn();
+		MvcResult result = mockMvc.perform(post("/user/login")
+				.content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null)))
+				.contentType(contentType)).andReturn();
 		JsonParser parser = new JacksonJsonParser();
 		Map<String, Object> users = parser.parseMap(result.getResponse().getContentAsString());
-		if(users.isEmpty())
+		if (users.isEmpty())
 			fail("no user found");
 		assertNotNull(users.get("sessionId"));
-		
+
+	}
+
+	@Test
+	public void testUserLoggedInWithNullInput() throws IOException, Exception {
+		mockMvc.perform(post("/user/login")).andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void testUserNotLoggedIn() throws IOException, Exception {
+		MvcResult result = mockMvc.perform(post("/user/logout")
+				.content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null)))
+				.contentType(contentType)).andReturn();
+		JsonParser parser = new JacksonJsonParser();
+		Map<String, Object> users = parser.parseMap(result.getResponse().getContentAsString());
+		if (users.isEmpty())
+			fail("no user found");
+		assertNull(users.get("sessionId"));
+
+	}
+
+	@Test
+	public void testUserNotLoggedInWithNullInput() throws IOException, Exception {
+		mockMvc.perform(post("/user/logout")).andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void testUserNotLoggedInWithNullUsername() throws IOException, Exception {
+		mockMvc.perform(post("/user/logout").contentType(contentType)
+				.content(json(new UserSpec(null, null, null, null, "apple", null, null, null, null))))
+				.andExpect(status().isBadRequest());
+
 	}
 	
 	@Test
-	public void testUserNotLoggedIn() throws IOException, Exception {
-		MvcResult result = mockMvc.perform(post("/user/logout").content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null))).contentType(contentType)).andReturn();
-		JsonParser parser = new JacksonJsonParser();
-		Map<String, Object> users = parser.parseMap(result.getResponse().getContentAsString());
-		if(users.isEmpty())
-			fail("no user found");
-		assertNull(users.get("sessionId"));
-		
+	public void testUserNotLoggedInWithNullPwd() throws IOException, Exception {
+		mockMvc.perform(post("/user/logout").contentType(contentType)
+				.content(json(new UserSpec(null, null, null, userName, null, null, null, null, null))))
+				.andExpect(status().isBadRequest());
+
 	}
 
 	@Test
@@ -119,20 +151,49 @@ public class UserServiceTest {
 			LinkedHashMap map = (LinkedHashMap) users.get(0);
 			String id = String.valueOf(map.get("id"));
 			MvcResult res = mockMvc
-					.perform(put("/user/status").accept(contentType)
+					.perform(put("/user").accept(contentType)
 							.contentType(contentType).content(json(new UserSpec(Long.valueOf(id), "Pritam", "Gade",
 									null, null, null, null, null, "1", null))))
 					.andExpect(status().isAccepted()).andReturn();
-			users = parser.parseList(res.getResponse().getContentAsString());
-			map = (LinkedHashMap) users.get(0);
-			assertEquals("1", String.valueOf(map.get("status")));
-			assertEquals(id, String.valueOf(map.get("id")));
-			assertEquals("Pritam", String.valueOf(map.get("fname")));
-			assertEquals("Gade", String.valueOf(map.get("lname")));
+			Map<String, Object> user = parser.parseMap(res.getResponse().getContentAsString());
+			assertEquals("1", String.valueOf(user.get("status")));
+			assertEquals(id, String.valueOf(user.get("id")));
+			assertEquals("Pritam", String.valueOf(user.get("firstname")));
+			assertEquals("Gade", String.valueOf(user.get("lastname")));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testUpdateUserWithNullInput() throws IOException, Exception {
+		mockMvc.perform(put("/user").contentType(contentType)).andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void testUCreateUserWithDuplicateUsername() throws IOException, Exception {
+		mockMvc.perform(post("/user").content(
+				json(new UserSpec("Sid", "Gelda", "sid@gmail.com", userName, "sidg", null, "my address", null, null)))
+				.contentType(contentType)).andExpect(status().isFound());
+
+	}
+
+	@Test
+	public void testUpdateUserWithNullIdInInput() throws IOException, Exception {
+		mockMvc.perform(put("/user").content(json(
+				new UserSpec(null, "Amit", "Karir", "amikarir@in.ibm.com", userName, "apple", null, null, null, null)))
+				.accept(contentType).contentType(contentType)).andExpect(status().isBadRequest());
+
+	}
+
+	@Test
+	public void testUpdateWrongUser() throws IOException, Exception {
+		mockMvc.perform(put("/user").content(json(new UserSpec(432424l, "Amit", "Karir", "amikarir@in.ibm.com",
+				userName, "apple", null, null, null, null))).accept(contentType).contentType(contentType))
+				.andExpect(status().isNotFound());
+
 	}
 
 	@Test
@@ -150,14 +211,33 @@ public class UserServiceTest {
 									.contentType(contentType).content(json(new UserSpec(Long.valueOf(id), null, null,
 											null, null, null, null, null, "0", null))))
 					.andExpect(status().isAccepted()).andReturn();
-			users = parser.parseList(res.getResponse().getContentAsString());
-			map = (LinkedHashMap) users.get(0);
-			assertEquals("0", String.valueOf(map.get("status")));
-			assertEquals(id, String.valueOf(map.get("id")));
+			Map<String, Object> user = parser.parseMap(res.getResponse().getContentAsString());
+			assertEquals("0", String.valueOf(user.get("status")));
+			assertEquals(id, String.valueOf(user.get("id")));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testStatusWithNullSpec() throws Exception {
+		mockMvc.perform(put("/user/status").contentType(contentType)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testStatusWithNullIdInSpec() throws Exception {
+		mockMvc.perform(
+				put("/user/status").content(json(new UserSpec(null, null, null, null, null, null, null, null, null)))
+						.contentType(contentType))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testStatusWithNullStatusInSpec() throws Exception {
+		mockMvc.perform(put("/user/status")
+				.content(json(new UserSpec(1l, null, null, null, null, null, null, null, null, null)))
+				.contentType(contentType)).andExpect(status().isBadRequest());
 	}
 
 	@Test
@@ -171,6 +251,21 @@ public class UserServiceTest {
 		mockMvc.perform(post("/user/login")
 				.content(json(new UserSpec(null, null, null, "amitkarir", "apple", null, null, null, null)))
 				.contentType(contentType)).andExpect(status().isOk());
+	}
+
+	@Test
+	public void testLoginWithNullUsername() throws Exception {
+		mockMvc.perform(
+				post("/user/login").content(json(new UserSpec(null, null, null, null, "apple", null, null, null, null)))
+						.contentType(contentType))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testLoginWithNullPassword() throws Exception {
+		mockMvc.perform(post("/user/login")
+				.content(json(new UserSpec(null, null, null, userName, null, null, null, null, null)))
+				.contentType(contentType)).andExpect(status().isBadRequest());
 	}
 
 	@Test

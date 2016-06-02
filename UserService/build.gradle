@@ -13,6 +13,46 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'spring-boot' 
+apply plugin: "jacoco"
+
+jacoco {
+    toolVersion = "0.7.6.201602180812"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+ jacocoTestReport {
+      group = "Reporting"
+      description = "Generate Jacoco coverage reports after running tests."
+
+      executionData = fileTree(dir: 'build/jacoco', include: '**/*.exec')
+
+      reports {
+             xml{
+                 enabled true
+                 //Following value is a file
+                 destination "${buildDir}/reports/jacoco/xml/jacoco.xml"
+             }
+             csv.enabled false
+             html{
+                 enabled true
+                 //Following value is a folder
+                 destination "${buildDir}/reports/jacoco/html"
+             }
+      }
+
+
+      sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+       classDirectories = files(sourceSets.main.output.classesDir)
+
+ }
+
+test {
+    jacoco {
+        append = false
+        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
+        classDumpFile = file("$buildDir/jacoco/classpathdumps")
+    }
+}
 
 jar {
 	baseName = 'IdentityService'
