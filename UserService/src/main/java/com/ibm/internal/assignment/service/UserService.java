@@ -53,8 +53,6 @@ public class UserService {
 
 	@RequestMapping(value = "/user", consumes = "application/json", method = RequestMethod.POST)
 	public ResponseEntity<?> createUser(@RequestBody UserSpec userSpec, UriComponentsBuilder urib) {
-		if (null == userSpec)
-			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null != entityManager.getByUsername(userSpec.getUsername()))
 			return errorHelper.getResponseEntity(new Error(2, "Duplicate  user"), HttpStatus.FOUND);
 		User user = new UserSpecEntityTransformer(userSpec).transformSpecToEntity();
@@ -67,8 +65,6 @@ public class UserService {
 
 	@RequestMapping(value = "/user", consumes = "application/json", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateUser(@RequestBody UserSpec userSpec, UriComponentsBuilder urib) {
-		if (null == userSpec)
-			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == userSpec.getId())
 			return errorHelper.getResponseEntity(new Error(1, "Identity is required for update"),
 					HttpStatus.BAD_REQUEST);
@@ -86,8 +82,6 @@ public class UserService {
 
 	@RequestMapping(value = "/user/status", consumes = "application/json", method = RequestMethod.PUT)
 	public ResponseEntity<?> deactivateUser(@RequestBody UserSpec userSpec, UriComponentsBuilder urib) {
-		if (null == userSpec)
-			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == userSpec.getId())
 			return errorHelper.getResponseEntity(new Error(1, "Identity is required for update"),
 					HttpStatus.BAD_REQUEST);
@@ -123,8 +117,6 @@ public class UserService {
 
 	@RequestMapping(value = "/user/login", produces = "application/json", method = RequestMethod.POST)
 	public ResponseEntity<?> login(@RequestBody UserSpec userSpec) {
-		if (null == userSpec)
-			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == userSpec.getUsername())
 			return errorHelper.getResponseEntity(new Error(1, "username is null"),
 					HttpStatus.BAD_REQUEST);
@@ -144,8 +136,6 @@ public class UserService {
 	
 	@RequestMapping(value = "/user/logout", produces = "application/json", method = RequestMethod.POST)
 	public ResponseEntity<?> logout(@RequestBody UserSpec userSpec) {
-		if (null == userSpec)
-			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
 		if (null == userSpec.getUsername())
 			return errorHelper.getResponseEntity(new Error(1, "username is null"),
 					HttpStatus.BAD_REQUEST);

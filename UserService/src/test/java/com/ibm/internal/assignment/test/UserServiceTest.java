@@ -124,6 +124,14 @@ public class UserServiceTest {
 		mockMvc.perform(post("/user/logout")).andExpect(status().isBadRequest());
 
 	}
+	
+	@Test
+	public void testLoginWithWrongCredentials() throws IOException, Exception {
+		mockMvc.perform(post("/user/logout")
+				.content(json(new UserSpec(null, null, null, "amitkarirdsdsd", "appledadad", null, null, null, null)))
+				.contentType(contentType)).andExpect(status().isNotFound());
+
+	}
 
 	@Test
 	public void testUserNotLoggedInWithNullUsername() throws IOException, Exception {
@@ -238,6 +246,13 @@ public class UserServiceTest {
 		mockMvc.perform(put("/user/status")
 				.content(json(new UserSpec(1l, null, null, null, null, null, null, null, null, null)))
 				.contentType(contentType)).andExpect(status().isBadRequest());
+	}
+	
+	@Test
+	public void testStatusUpdateWithWrongID() throws Exception {
+		mockMvc.perform(put("/user/status")
+				.content(json(new UserSpec(1l, null, null, null, null, null, null, null, "0", null)))
+				.contentType(contentType)).andExpect(status().isNotFound());
 	}
 
 	@Test
