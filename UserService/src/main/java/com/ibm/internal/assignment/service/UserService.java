@@ -3,8 +3,6 @@ package com.ibm.internal.assignment.service;
 import java.net.URI;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -34,7 +31,7 @@ import com.ibm.internal.assignment.service.helper.UserServiceHelper;
 @SpringBootApplication
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
 @ComponentScan(basePackages = { "com.ibm.internal.assignment" })
-//@EnableEurekaClient
+@EnableEurekaClient
 @RestController
 public class UserService {
 
@@ -48,8 +45,8 @@ public class UserService {
 	UserServiceHelper<Error> errorHelper;
 
 	public static void main(String[] args) {
-//		System.setProperty("spring.config.name", "userServiceClient");
-
+		System.setProperty("spring.config.name", "userServiceClient");
+//		new SpringApplicationBuilder().initializers(new AppContextinitializer()).application().run(UserService.class,args);
 		SpringApplication.run(UserService.class, args);
 
 	}
@@ -137,8 +134,30 @@ public class UserService {
 		if (null == user)
 			return new ResponseEntity<Error>(new Error(3, "user with supplied credentials not found."),
 					HttpStatus.NOT_FOUND);
+		String randonSessionID = user.getUname().concat(String.valueOf(Math.random()));
+		user.setSessionId(randonSessionID);
+		entityManager.save(user);
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("sessionID", String.valueOf(Math.random()));
+		return new ResponseEntity<User>(user, headers, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/user/logout", produces = "application/json", method = RequestMethod.POST)
+	public ResponseEntity<?> logout(@RequestBody UserSpec userSpec) {
+		if (null == userSpec)
+			return errorHelper.getResponseEntity(new Error(1, "invalid user"), HttpStatus.BAD_REQUEST);
+		if (null == userSpec.getUsername())
+			return errorHelper.getResponseEntity(new Error(1, "username is null"),
+					HttpStatus.BAD_REQUEST);
+		if (userSpec.getPwd() == null)
+			return errorHelper.getResponseEntity(new Error(1, "pwd is null"), HttpStatus.BAD_REQUEST);			
+		User user = entityManager.getByUsernameAndPassword(userSpec.getUsername(), userSpec.getPwd());
+		if (null == user)
+			return new ResponseEntity<Error>(new Error(3, "user with supplied credentials not found."),
+					HttpStatus.NOT_FOUND);
+		user.setSessionId(null);
+		entityManager.save(user);
+		HttpHeaders headers = new HttpHeaders();
 		return new ResponseEntity<User>(user, headers, HttpStatus.OK);
 	}
 

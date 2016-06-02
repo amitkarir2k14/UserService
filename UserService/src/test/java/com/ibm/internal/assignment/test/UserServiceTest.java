@@ -7,6 +7,9 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
 
 //import org.mockito.Mockito.*;
 import org.junit.Before;
@@ -30,13 +33,18 @@ import com.ibm.internal.assignment.entity.spec.UserSpec;
 import com.ibm.internal.assignment.repository.UserRepository;
 import com.ibm.internal.assignment.service.UserService;
 
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = UserService.class)
+@Transactional
+@Rollback(true)
+@ActiveProfiles("test")
+@SpringApplicationConfiguration(classes = { UserService.class })
 @WebAppConfiguration
 public class UserServiceTest {
 
@@ -80,6 +88,28 @@ public class UserServiceTest {
 	}
 
 	@Test
+	public void testUserLoggedIn() throws IOException, Exception {
+		MvcResult result = mockMvc.perform(post("/user/login").content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null))).contentType(contentType)).andReturn();
+		JsonParser parser = new JacksonJsonParser();
+		Map<String, Object> users = parser.parseMap(result.getResponse().getContentAsString());
+		if(users.isEmpty())
+			fail("no user found");
+		assertNotNull(users.get("sessionId"));
+		
+	}
+	
+	@Test
+	public void testUserNotLoggedIn() throws IOException, Exception {
+		MvcResult result = mockMvc.perform(post("/user/logout").content(json(new UserSpec(null, null, null, userName, "apple", null, null, null, null))).contentType(contentType)).andReturn();
+		JsonParser parser = new JacksonJsonParser();
+		Map<String, Object> users = parser.parseMap(result.getResponse().getContentAsString());
+		if(users.isEmpty())
+			fail("no user found");
+		assertNull(users.get("sessionId"));
+		
+	}
+
+	@Test
 	public void testUpdateUser() {
 		MvcResult result;
 		try {
@@ -89,12 +119,11 @@ public class UserServiceTest {
 			LinkedHashMap map = (LinkedHashMap) users.get(0);
 			String id = String.valueOf(map.get("id"));
 			MvcResult res = mockMvc
-					.perform(
-							put("/user/status").accept(contentType)
-									.contentType(contentType).content(json(new UserSpec(Long.valueOf(id), "Pritam", "Gade",
-											null, null, null, null, null, "1", null))))
+					.perform(put("/user/status").accept(contentType)
+							.contentType(contentType).content(json(new UserSpec(Long.valueOf(id), "Pritam", "Gade",
+									null, null, null, null, null, "1", null))))
 					.andExpect(status().isAccepted()).andReturn();
-			users= parser.parseList(res.getResponse().getContentAsString());
+			users = parser.parseList(res.getResponse().getContentAsString());
 			map = (LinkedHashMap) users.get(0);
 			assertEquals("1", String.valueOf(map.get("status")));
 			assertEquals(id, String.valueOf(map.get("id")));
@@ -121,7 +150,7 @@ public class UserServiceTest {
 									.contentType(contentType).content(json(new UserSpec(Long.valueOf(id), null, null,
 											null, null, null, null, null, "0", null))))
 					.andExpect(status().isAccepted()).andReturn();
-			users= parser.parseList(res.getResponse().getContentAsString());
+			users = parser.parseList(res.getResponse().getContentAsString());
 			map = (LinkedHashMap) users.get(0);
 			assertEquals("0", String.valueOf(map.get("status")));
 			assertEquals(id, String.valueOf(map.get("id")));

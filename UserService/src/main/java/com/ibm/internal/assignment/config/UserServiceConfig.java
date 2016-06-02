@@ -5,7 +5,6 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import com.ibm.internal.assignment.repository.UserRepository;
 
 @Configuration
 @EnableJpaRepositories(basePackageClasses = { UserRepository.class })
-//@ComponentScan(basePackages = { "com.ibm.internal.assignment" })
 public class UserServiceConfig {
 
 	@Bean

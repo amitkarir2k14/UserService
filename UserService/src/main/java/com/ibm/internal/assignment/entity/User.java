@@ -33,6 +33,9 @@ public class User {
 	@NotNull
 	private String uname;
 	
+	@Column(name="sessionID", columnDefinition="LONG VARCHAR")
+	private String sessionId;
+	
 	public User(){}
 
 	public User(String firstname, String lastname, String email, String uname, String pwd, String portfolioId,
@@ -158,6 +161,14 @@ public class User {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
 	}
 
 }

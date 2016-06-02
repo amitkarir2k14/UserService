@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: 'spring-boot' 
 
 jar {
-	baseName = 'demo'
+	baseName = 'IdentityService'
 	version = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.8
@@ -33,6 +33,7 @@ dependencies {
 	compile fileTree(dir: 'lib', include: '*.jar')
 	testCompile('org.springframework.boot:spring-boot-starter-test') 
 	compile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+	compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 dependencyManagement {
